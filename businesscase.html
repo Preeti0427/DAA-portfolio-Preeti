@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en"></html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Search Algorithms</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        pre {
+            background-color: #272822;
+            color: #f8f8f2;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .description {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container"></div>
+        <h1>Job Search Algorithms</h1>
+        <div class="description">
+            <p>This page demonstrates three different C++ algorithms for job search and sorting:</p>
+            <ul>
+                <li>Quick Sort for sorting jobs by salary.</li>
+                <li>Brute Force String Matching for searching job descriptions.</li>
+                <li>Knuth-Morris-Pratt (KMP) String Matching for efficient job description search.</li>
+            </ul>
+        </div>
+        <h2>Quick Sort Algorithm</h2>
+        <p>The Quick Sort algorithm is a popular sorting technique that uses a divide-and-conquer approach to sort elements. In the provided code, the Job structure holds information about jobs, including industry, salary, and required skills. The partition function is used to rearrange the elements in the vector such that elements less than the pivot are on the left, and elements greater than the pivot are on the right. The quickSort function recursively sorts the elements by calling itself on the subarrays formed by the partitioning process. The displayJobs function is used to print the list of jobs before and after sorting. The main function initializes a vector of jobs, displays them, sorts them using Quick Sort, and then displays the sorted list.</p>
+        <pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+using namespace std;
+
+struct Job {
+    string industry;
+    double salary;
+    string requiredSkill;
+};
+
+int partition(vector&lt;Job&gt;& jobs, int low, int high) {
+    double pivot = jobs[high].salary;
+    int i = low - 1;
+
+    for (int j = low; j &lt; high; j++) {
+        if (jobs[j].salary &lt;= pivot) {
+            i++;
+            swap(jobs[i], jobs[j]);
+        }
+    }
+    swap(jobs[i + 1], jobs[high]);
+    return i + 1;
+}
+
+void quickSort(vector&lt;Job&gt;& jobs, int low, int high) {
+    if (low &lt; high) {
+        int pi = partition(jobs, low, high);
+        quickSort(jobs, low, pi - 1);
+        quickSort(jobs, pi + 1, high);
+    }
+}
+
+void displayJobs(const vector&lt;Job&gt;& jobs) {
+    for (const auto& job : jobs) {
+        cout &lt;&lt; "Industry: " &lt;&lt; job.industry
+             &lt;&lt; ", Salary: " &lt;&lt; job.salary
+             &lt;&lt; ", Required Skill: " &lt;&lt; job.requiredSkill &lt;&lt; endl;
+    }
+}
+
+int main() {
+    vector&lt;Job&gt; jobs = {
+        {"IT", 70000, "C++"},
+        {"Healthcare", 50000, "Nursing"},
+        {"Education", 40000, "Teaching"},
+        {"Finance", 60000, "Accounting"},
+        {"Retail", 30000, "Sales"}
+    };
+
+    cout &lt;&lt; "Before Sorting:" &lt;&lt; endl;
+    displayJobs(jobs);
+
+    quickSort(jobs, 0, jobs.size() - 1);
+
+    cout &lt;&lt; "\nAfter Sorting by Salary:" &lt;&lt; endl;
+    displayJobs(jobs);
+
+    return 0;
+}</code></pre>
+
+        <h2>Brute Force String Matching Algorithm</h2>
+        <p>The Brute Force String Matching algorithm is a straightforward method for finding occurrences of a pattern within a text. The bruteForceSearch function iterates through the text and checks for the pattern at each position. If the pattern matches the substring of the text, the starting index is recorded. The main function prompts the user to enter job descriptions and a search query, then uses the bruteForceSearch function to find all occurrences of the query in the job descriptions. The results are printed, showing the positions where the query was found.</p>
+        <pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+using namespace std;
+
+vector&lt;int&gt; bruteForceSearch(const string& text, const string& pattern) {
+    vector&lt;int&gt; matchPositions;
+    int textLength = text.size();
+    int patternLength = pattern.size();
+
+    for (int i = 0; i &lt;= textLength - patternLength; ++i) {
+        int j = 0;
+        while (j &lt; patternLength && text[i + j] == pattern[j]) {
+            j++;
+        }
+        if (j == patternLength) {
+            matchPositions.push_back(i);
+        }
+    }
+    return matchPositions;
+}
+
+int main() {
+    string jobDatabase, searchQuery;
+    cout &lt;&lt; "Enter the job descriptions (single string): ";
+    getline(cin, jobDatabase);
+    cout &lt;&lt; "Enter the search query: ";
+    getline(cin, searchQuery);
+
+    vector&lt;int&gt; results = bruteForceSearch(jobDatabase, searchQuery);
+
+    if (!results.empty()) {
+        cout &lt;&lt; "Search query found at positions: ";
+        for (int pos : results) {
+            cout &lt;&lt; pos &lt;&lt; " ";
+        }
+        cout &lt;&lt; endl;
+    } else {
+        cout &lt;&lt; "Search query not found in the job descriptions.\n";
+    }
+
+    return 0;
+}</code></pre>
+
+        <h2>Knuth-Morris-Pratt (KMP) String Matching Algorithm</h2>
+        <p>The KMP algorithm is an efficient string matching algorithm that improves upon the brute force approach by using preprocessing to avoid redundant comparisons. The computeLPSArray function calculates the Longest Prefix Suffix (LPS) array, which is used to skip unnecessary comparisons during the search. The KMPSearch function uses the LPS array to find occurrences of the pattern in the text. It iterates through the text and pattern, and when a mismatch occurs, it uses the LPS array to determine the next positions to compare. The main function prompts the user to enter job descriptions and a search query, then uses the KMPSearch function to find all occurrences of the query in the job descriptions. The results are printed, showing the positions where the query was found.</p>
+        <pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+using namespace std;
+
+void computeLPSArray(const string& pattern, vector&lt;int&gt;& lps) {
+    int length = 0;
+    int i = 1;
+    lps[0] = 0;
+
+    while (i &lt; pattern.size()) {
+        if (pattern[i] == pattern[length]) {
+            length++;
+            lps[i] = length;
+            i++;
+        } else {
+            if (length != 0) {
+                length = lps[length - 1];
+            } else {
+                lps[i] = 0;
+                i++;
+            }
+        }
+    }
+}
+
+vector&lt;int&gt; KMPSearch(const string& text, const string& pattern) {
+    int textLength = text.size();
+    int patternLength = pattern.size();
+    vector&lt;int&gt; lps(patternLength, 0);
+    vector&lt;int&gt; matchPositions;
+
+    computeLPSArray(pattern, lps);
+
+    int i = 0, j = 0;
+    while (i &lt; textLength) {
+        if (pattern[j] == text[i]) {
+            i++;
+            j++;
+        }
+        if (j == patternLength) {
+            matchPositions.push_back(i - j);
+            j = lps[j - 1];
+        } else if (i &lt; textLength && pattern[j] != text[i]) {
+            if (j != 0) {
+                j = lps[j - 1];
+            } else {
+                i++;
+            }
+        }
+    }
+
+    return matchPositions;
+}
+
+int main() {
+    string jobDatabase, searchQuery;
+    cout &lt;&lt; "Enter the job descriptions (single string): ";
+    getline(cin, jobDatabase);
+    cout &lt;&lt; "Enter the search query: ";
+    getline(cin, searchQuery);
+
+    vector&lt;int&gt; results = KMPSearch(jobDatabase, searchQuery);
+
+    if (!results.empty()) {
+        cout &lt;&lt; "Search query found at positions: ";
+        for (int pos : results) {
+            cout &lt;&lt; pos &lt;&lt; " ";
+        }
+        cout &lt;&lt; endl;
+    } else {
+        cout &lt;&lt; "Search query not found in the job descriptions.\n";
+    }
+
+    return 0;
+}</code></pre>
+    </div>
+</body>
+</html>
